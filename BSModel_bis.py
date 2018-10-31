@@ -86,7 +86,7 @@ class BlackScholes(Mod):
         Mod.Price(self,S0,T,MySecurities,MyNumericalMethod)
         if !isinstance(MyNumericalMethod,NumMeth):
             #TO BE COMPLETED
-            #return
+            #return_1
 
     def FuncPrice(T,S0,K,ModelParams):
         return Price(S0,K,ModelParams[0],ModelParams[1],T)
