@@ -4,7 +4,7 @@ from NumericalMethod import NumericalMethod as NumMeth
 class Model(object):
     
     def MsgParams(BoolParams=True):
-        if !BoolParams:
+        if not(BoolParams):
             print("Params are not correct")
         else:
             print("Params are correct")
@@ -35,7 +35,7 @@ class Model(object):
         return 0
 
     def Price(self,S0,T,MySecurities,MyNumericalMethod):
-        if !isinstance(MySecurities,Secu):
+        if not(isinstance(MySecurities,Secu)):
             print("Security parameter is not correct")
         
             

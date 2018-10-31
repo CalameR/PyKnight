@@ -31,13 +31,13 @@ class MC(NumericalMethod):
     def GetParamPos(self,ParamName):
         if (ParamName == "n" or "N" or "NBRAND" or "nbrand"):
             return 0
-        elif (ParamName == "var" or "VAR")
+        elif (ParamName == "var" or "VAR"):
             return 1
     
     def ComputeMean(self,FuncSimulate,ParamsSimu,FuncEval,ParamsEval):
         Sum = 0
         n = self.GetParamPos("n")
-        for i in range(0:n):
+        for i in range(0,n):
             S = FuncSimulate(ParamsSimu)
             Sum = Sum + FuncEval(S,ParamsEval)
         return Sum/n

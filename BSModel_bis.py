@@ -24,11 +24,7 @@ class BlackScholes(Mod):
             return S0 * ss.norm.cdf(BlackScholes.d1(S0, K, r, sigma, T)) - K * np.exp(-r * T) * ss.norm.cdf(BlackScholes.d2(S0, K, r, sigma, T))
         
     def PutPrice(S0, K, r, sigma, T):
-        if T==0:
-            return np.maximum(K-S0,0)
-        else:
-            return K * np.exp(-r * T) * ss.norm.cdf(-BlackScholes.d2(S0, K, r, sigma, T)) - S0 * ss.norm.cdf(-BlackScholes.d1(S0, K, r, sigma, T))
-    
+        return BlackScholes.CallPrice(S0,K,r,sigma,T)-(S0-K)
     
     def DeltaCall(S0,K,r,sigma,T):
         if T==0:
@@ -84,7 +80,8 @@ class BlackScholes(Mod):
     
     def Price(self,S0,T,MySecurities,MyNumericalMethod=()):
         Mod.Price(self,S0,T,MySecurities,MyNumericalMethod)
-        if !isinstance(MyNumericalMethod,NumMeth):
+        if not(isinstance(MyNumericalMethod,NumMeth)):
+            
             #TO BE COMPLETED
             #return_1
 
