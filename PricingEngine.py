@@ -1,17 +1,16 @@
-from Observer import Observer, Observable
+import Observer
 
-class PricingEngine(Observer,Observable):
+class PricingEngine(Observer.Observer,Observer.Observable):
     def __init__(self,arguments,results):
-        Observable.__init__(self)
-        self.arguments_ = arguments
-        self.results_ = results
+        Observer.Observable.__init__(self)
+        self.arguments = arguments
+        self.results = results
     
     def reset(self):
-        return self.results_.reset()
+        return self.results.reset()
     
-    def update(self,observable):
-        return self.notifyObservers(self)
-    
+    def update(self):
+        return self.notifyObservers()
 
 class Arguments(object):
     def __init__(self):

@@ -1,20 +1,20 @@
 # Util/Observer.py
 # Class support for "observer" pattern.
-from Synchronization import *
+import Synchronization as SyncFile
 
 class Observer:
-    def update(observable):
+    def update(self):
         '''Called when the observed object is
         modified. You call an Observable object's
         notifyObservers method to notify all the
         object's observers of the change.'''
         pass
 
-class Observable(Synchronization):
+class Observable(SyncFile.Synchronization):
     def __init__(self):
         self.obs = []
         self.changed = 0
-        Synchronization.__init__(self)
+        SyncFile.Synchronization.__init__(self)
 
     def addObserver(self, observer):
         if observer not in self.obs:
@@ -41,7 +41,7 @@ class Observable(Synchronization):
             self.mutex.release()
         # Updating is not required to be synchronized:
         for observer in localArray:
-            observer.update(self, arg)
+            observer.update()
 
     def deleteObservers(self): self.obs = []
     def setChanged(self): self.changed = 1
@@ -49,7 +49,7 @@ class Observable(Synchronization):
     def hasChanged(self): return self.changed
     def countObservers(self): return len(self.obs)
 
-synchronize(Observable,
+SyncFile.synchronize(Observable,
  "addObserver deleteObserver deleteObservers " +
  "setChanged clearChanged hasChanged " +
   "countObservers")

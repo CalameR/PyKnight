@@ -2,45 +2,45 @@ from Observer import Observer, Observable
 
 class KPyObject(Observer,Observable):
     def __init__(self):
-        self.calculated_ = False
-        self.frozen_ = False
-        self.alwaysForward_ = False
+        self.calculated = False
+        self.frozen = False
+        self.alwaysForward = False
     
-    def update(self,observable):
-        if (self.calculated_ or self.alwaysForward_):
-            self.calculated_ = False
-            if not(self.frozen_):
-                self.notifyObservers(self)
+    def update(self):
+        if (self.calculated or self.alwaysForward):
+            self.calculated = False
+            if not(self.frozen):
+                self.notifyObservers()
                 
     def performCalculations(self):
         pass
     
     def calculate(self):
-        if not(self.calculated_) and not(self.frozen_):
-           self.calculated_ = True
+        if not(self.calculated) and not(self.frozen):
+           self.calculated = True
            try:
                self.performCalculations()
            except:
-               self.calculated_ = False
+               self.calculated = False
                raise
     
     def recalculate(self):
-        wasFrozen = self.frozen_
-        self.calculated_, self.frozen_ = False
+        wasFrozen = self.frozen
+        self.calculated, self.frozen = False
         try:
             self.calculate()
         except:
-            self.frozen_ = wasFrozen
-            self.notifyObservers(self)
+            self.frozen = wasFrozen
+            self.notifyObservers()
     
     
     def freeze(self):
-        self.frozen_ = True
+        self.frozen = True
     
     def unfreeze(self):
-        if (self.frozen_):
-            self.frozen_ = False
-            self.notifyObservers(self)
+        if (self.frozen):
+            self.frozen = False
+            self.notifyObservers()
             
             
         
