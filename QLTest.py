@@ -51,8 +51,8 @@ heston_process = ql.HestonProcess(flat_ts,
                                   ksi,
                                   rho)
 
+
 engine = ql.AnalyticHestonEngine(ql.HestonModel(heston_process),0.01,1000)
-engine.
 #bsm_process = ql.BlackScholesMertonProcess(spot_handle, 
 #                                           dividend_yield, 
 #                                           flat_ts, 
