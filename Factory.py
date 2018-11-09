@@ -12,15 +12,15 @@ class Factory(object):
         return self._params
     
     def GetParamNames(self):
-        return self._params.keys()
+        return list(self._params.keys())
     
     def SetParams(self,**params):
         for (key,val) in self._params.items():
             self._params[key] = params.get(key,val)
     
-    def Make(self,**data):
+    def UpdateParams(self,**data):
         pass
     
-    def UpdateParams(self,**data):
+    def __call__(self,**data):
         pass
 

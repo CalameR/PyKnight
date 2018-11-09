@@ -8,7 +8,7 @@ class HestonProcessFactory(Process.ProcessFactory):
         params={'r':r,'q':q,'s0':s0,'v0':v0,'kappa':kappa,'theta':theta,'sigma':sigma,'rho':rho}
         Process.ProcessFactory.__init__(self,"Heston_Process",params,2,1)
         
-    def Make(self,**data):
+    def __call__(self,**data):
         DayCount = data.get('DayCount')
         AsOfDate = data.get('AsOfDate')
         rate_curve_handle = ql.YieldTermStructureHandle(
@@ -48,8 +48,8 @@ class HestonModelFactory(Base.Factory):
     def SetParams(self,**params):
         self._HestonProcess.SetParams(**params)
     
-    def Make(self,**data):
-        return ql.HestonModel(self._HestonProcess.Make(**data))
+    def __call__(self,**data):
+        return ql.HestonModel(self._HestonProcess(**data))
     
     def UpdateParams(self,**data):
         self._HestonProcess.UpdateParams(**data)    
@@ -74,8 +74,8 @@ class HestonAnalyticEngineFactory(Base.Factory):
         self._HestonModel.SetParams(**params)
         Base.Factory.SetParams(self,**params)
         
-    def Make(self,**data):
-        return ql.AnalyticHestonEngine(self._HestonModel.Make(**data),self._params.get('relTolerance'),self._params.get('maxEval'))
+    def __call__(self,**data):
+        return ql.AnalyticHestonEngine(self._HestonModel(**data),self._params.get('relTolerance'),self._params.get('maxEval'))
     
     def UpdateParams(self,**data):
         self._HestonModel.UpdateParams(**data)

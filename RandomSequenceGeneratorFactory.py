@@ -6,7 +6,7 @@ class UniformRandomSequenceGeneratorFactory(Base.Factory):
         params={'dimension':dimension}
         Base.Factory.__init__(self,"UniformRandomSequenceGenerator",params)
     
-    def Make(self,**data):
+    def __call__(self,**data):
         return ql.UniformRandomSequenceGenerator(self._params.get('dimension'),ql.UniformRandomGenerator())
         
     def UpdateParams(self,**data):
@@ -26,8 +26,8 @@ class GaussianRandomSequenceGeneratorFactory(Base.Factory):
     def SetParams(self,**params):
         self._UniformRandomSequenceGenerator.SetParams(**params)
     
-    def Make(self,**data):
-        return ql.GaussianRandomSequenceGenerator(self._UniformRandomSequenceGenerator.Make(**data))
+    def __call__(self,**data):
+        return ql.GaussianRandomSequenceGenerator(self._UniformRandomSequenceGenerator(**data))
     
     def UpdateParams(self,**data):
         self._UniformRandomSequenceGenerator.UpdateParams(**data) 

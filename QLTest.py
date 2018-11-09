@@ -45,7 +45,7 @@ if __name__=="__main__":
     #plt.show()
     
     NumPaths = 1000
-    time, paths = Utils.GeneratePaths_(NumPaths,GlobalData,HestonPathGenerator)
+    time, paths = Utils.GeneratePaths(NumPaths,GlobalData,HestonPathGenerator)
     for i in range(NumPaths):
         plt.plot(time, paths[i, :], lw=1, alpha=1)
     plt.title("Heston Simulation")

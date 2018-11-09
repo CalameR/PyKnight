@@ -8,7 +8,7 @@ class BlackScholesProcessFactory(Process.ProcessFactory):
         params={'r':r,'q':q,'s0':s0,'sigma':sigma}
         Process.ProcessFactory.__init__(self,"Heston_Process",params,1,1)
         
-    def Make(self,**data):
+    def __call__(self,**data):
         DayCount = data.get('DayCount')
         AsOfDate = data.get('AsOfDate')
         Calendar = data.get('Calendar')
@@ -41,8 +41,8 @@ class BlackScholesAnalyticEngineFactory(Base.Factory):
     def SetParams(self,**params):
         self._BlackScholesProcess.SetParams(**params)
         
-    def Make(self,**data):
-        return ql.AnalyticEuropeanEngine(self._BlackScholesProcess.Make(**data))
+    def __call__(self,**data):
+        return ql.AnalyticEuropeanEngine(self._BlackScholesProcess(**data))
     
     def UpdateParams(self,**data):
         self._BlackScholesProcess.UpdateParams(**data)

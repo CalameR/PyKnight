@@ -6,7 +6,7 @@ def GeneratePaths(NumPaths, GlobalData, PathGenerator):
     timestep = int(PathGenerator.GetParams().get('dimension')/nb_factors)
     arr = np.zeros((NumPaths*nb_assets, timestep+1))
     
-    seq = PathGenerator.Make(**GlobalData)
+    seq = PathGenerator(**GlobalData)
     
     for i in range(NumPaths):
         sample_path = seq.next()
@@ -44,7 +44,7 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
     ################################################################
     # ---- PATH SIMULATION & CONFIG ARRAYS
     ################################################################
-    seq = PathGenerator.Make(**GlobalData)
+    seq = PathGenerator(**GlobalData)
     sample_path = seq.next()
     path = sample_path.value()
     path_ref = []
@@ -85,7 +85,7 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
         #######################################################
         # ----- INSTRUMENT AT MARKET PRICE --------------------
         #######################################################
-        Instrument1D.setPricingEngine(PricingEngine.Make(**GlobalData))
+        Instrument1D.setPricingEngine(PricingEngine(**GlobalData))
         instrument_value[m] = Instrument1D.NPV()
         
         #######################################################
@@ -96,7 +96,7 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
             portfolio_value[m] = instrument_value[m]+Margin
         else:
             portfolio_value[m] = portfolio_value[m-1]+(np.exp((r-q)*dt)-1)*(portfolio_value[m-1]-Delta*path_ref[m-1])+Delta*(path_ref[m]-path_ref[m-1])
-        Instrument1D.setPricingEngine(HedgingEngine.Make(**GlobalData))
+        Instrument1D.setPricingEngine(HedgingEngine(**GlobalData))
         Delta = Instrument1D.delta()
         LocalDate = LocalDate + HedgingStepDays
         arr[0, :] = instrument_value
