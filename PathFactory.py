@@ -32,24 +32,25 @@ class GaussianPathGeneratorFactory(Base.Factory):
         names.extend(Base.Factory.GetParamNames(self))
         return names
     
-    def SetParams(self,**params):
-        self._PathProcess.SetParams(**params)
-        self._GaussianRandomSequenceGenerator.SetParams(**params)
-        Base.Factory.SetParams(self,**params)
-    
-    def __call__(self,**data):
-        return ql.GaussianPathGenerator(self._PathProcess(**data),
+    def _QLBuild(self):
+        self._QLFactory = ql.GaussianPathGenerator(self._PathProcess(),
                                         self._params.get('length'),
                                         self._params.get('timestep'),
-                                        self._GaussianRandomSequenceGenerator(**data),
+                                        self._GaussianRandomSequenceGenerator(),
                                         self._params.get('brownianBridge'))    
     
-    def UpdateParams(self,**data):
-        self._PathProcess.UpdateParams(**data)
+    def Update(self,**data):
+        self._PathProcess.Update(**data)
         dimension = data.get('timestep',self._params.get('timestep'))
         data['dimension']=dimension
-        self._GaussianRandomSequenceGenerator.UpdateParams(**data)
-        Base.Factory.UpdateParams(**data)
+        self._GaussianRandomSequenceGenerator.Update(**data)
+        Base.Factory.Update(self,**data)
+    
+    def _UpdateParams(self,**data):
+        Base.Factory._SetParams(self,**data)
+    
+    def _UpdateData(self,**data):
+        return 0
 
 class GaussianMultiPathGeneratorFactory(Base.Factory):
     def __init__(self,name,pathProcess,timeGrid,brownianBridge=False):
@@ -80,20 +81,21 @@ class GaussianMultiPathGeneratorFactory(Base.Factory):
         names.extend(Base.Factory.GetParamNames(self))
         return names
     
-    def SetParams(self,**params):
-        self._PathProcess.SetParams(**params)
-        self._GaussianRandomSequenceGenerator.SetParams(**params)
-        Base.Factory.SetParams(self,**params)
-    
-    def __call__(self,**data):
-        return ql.GaussianMultiPathGenerator(self._PathProcess(**data),
+    def _QLBuild(self):
+        self._QLFactory = ql.GaussianMultiPathGenerator(self._PathProcess(),
                                              self._params.get('timeGrid'),
-                                             self._GaussianRandomSequenceGenerator(**data),
+                                             self._GaussianRandomSequenceGenerator(),
                                              self._params.get('brownianBridge'))    
     
-    def UpdateParams(self,**data):
-        self._PathProcess.UpdateParams(**data)
-        dimension = self._pathProcess.GetNbFactors()*(len(data.get('timeGrid',self._params.get('timeGrid'))))
+    def Update(self,**data):
+        self._PathProcess.Update(**data)
+        dimension = self._PathProcess.GetNbFactors()*(len(data.get('timeGrid',self._params.get('timeGrid')))-1)
         data['dimension']=dimension
-        self._GaussianRandomSequenceGenerator.UpdateParams(**data)
-        Base.Factory.UpdateParams(**data)
+        self._GaussianRandomSequenceGenerator.Update(**data)
+        Base.Factory.Update(self,**data)
+        
+    def _UpdateParams(self,**data):
+        Base.Factory._SetParams(self,**data)
+    
+    def _UpdateData(self,**data):
+        return 0

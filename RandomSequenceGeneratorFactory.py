@@ -6,11 +6,14 @@ class UniformRandomSequenceGeneratorFactory(Base.Factory):
         params={'dimension':dimension}
         Base.Factory.__init__(self,"UniformRandomSequenceGenerator",params)
     
-    def __call__(self,**data):
-        return ql.UniformRandomSequenceGenerator(self._params.get('dimension'),ql.UniformRandomGenerator())
+    def _QLBuild(self):
+        self._QLFactory = ql.UniformRandomSequenceGenerator(self._params.get('dimension'),ql.UniformRandomGenerator())
         
-    def UpdateParams(self,**data):
-        Base.Factory.SetParams(self,**data)
+    def _UpdateParams(self,**data):
+        Base.Factory._SetParams(self,**data)
+    
+    def _UpdateData(self,**data):
+        return 0
 
 class GaussianRandomSequenceGeneratorFactory(Base.Factory):
     def __init__(self,dimension):
@@ -23,11 +26,15 @@ class GaussianRandomSequenceGeneratorFactory(Base.Factory):
     def GetParamNames(self):
         return self._UniformRandomSequenceGenerator.GetParamNames()
     
-    def SetParams(self,**params):
-        self._UniformRandomSequenceGenerator.SetParams(**params)
+    def _QLBuild(self):
+        self._QLFactory = ql.GaussianRandomSequenceGenerator(self._UniformRandomSequenceGenerator())
     
-    def __call__(self,**data):
-        return ql.GaussianRandomSequenceGenerator(self._UniformRandomSequenceGenerator(**data))
+    def _UpdateParams(self,**data):
+        return 0
     
-    def UpdateParams(self,**data):
-        self._UniformRandomSequenceGenerator.UpdateParams(**data) 
+    def _UpdateData(self,**data):
+        return 0
+    
+    def Update(self,**data):
+        self._UniformRandomSequenceGenerator.Update(**data)
+        Base.Factory.Update(self,**data)

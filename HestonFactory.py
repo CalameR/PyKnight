@@ -7,16 +7,17 @@ class HestonProcessFactory(Process.ProcessFactory):
     def __init__(self,r,q,s0,v0,kappa,theta,sigma,rho):
         params={'r':r,'q':q,'s0':s0,'v0':v0,'kappa':kappa,'theta':theta,'sigma':sigma,'rho':rho}
         Process.ProcessFactory.__init__(self,"Heston_Process",params,2,1)
+        self._data = {'DayCount':0,'AsOfDate':0}
         
-    def __call__(self,**data):
-        DayCount = data.get('DayCount')
-        AsOfDate = data.get('AsOfDate')
+    def _QLBuild(self):
+        DayCount = self._data.get('DayCount')
+        AsOfDate = self._data.get('AsOfDate')
         rate_curve_handle = ql.YieldTermStructureHandle(
                 ql.FlatForward(AsOfDate,ql.QuoteHandle(ql.SimpleQuote(self._params.get('r'))),DayCount))
         div_curve_handle = ql.YieldTermStructureHandle(
                 ql.FlatForward(AsOfDate,ql.QuoteHandle(ql.SimpleQuote(self._params.get('q'))),DayCount))
         spot_handle = ql.QuoteHandle(ql.SimpleQuote(self._params.get('s0')))
-        return ql.HestonProcess(rate_curve_handle,div_curve_handle,spot_handle,
+        self._QLFactory = ql.HestonProcess(rate_curve_handle,div_curve_handle,spot_handle,
                                 self._params.get('v0'),self._params.get('kappa'),self._params.get('theta'),
                                 self._params.get('sigma'),self._params.get('rho'))
     
@@ -25,11 +26,15 @@ class HestonProcessFactory(Process.ProcessFactory):
             return 's'
         elif pos==1:
             return 'v'
-        
+    
+    def _UpdateData(self,**data):
+        self._data['DayCount']=data.get('DayCount',self._data.get('DayCount'))
+        self._data['AsOfDate']=data.get('AsOfDate',self._data.get('AsOfDate'))
+    
     ###################################################################################
     ## NO RECALIBRATION: DO A CHILD CLASS IF YOU WANT TO DO ANOTHER UPDATE 
     ###################################################################################
-    def UpdateParams(self,**data):
+    def _UpdateParams(self,**data):
         self._params['s0']=data.get('s',self._params.get('s0'))
         self._params['v0']=data.get('v',self._params.get('v0'))
         
@@ -37,7 +42,6 @@ class HestonModelFactory(Base.Factory):
     def __init__(self,r,q,s0,v0,kappa,theta,sigma,rho):
         Base.Factory.__init__(self,"Heston_Model")
         self._HestonProcess = HestonProcessFactory(r,q,s0,v0,kappa,theta,sigma,rho)
-        
     
     def GetParams(self):
         return self._HestonProcess.GetParams()
@@ -45,14 +49,18 @@ class HestonModelFactory(Base.Factory):
     def GetParamNames(self):
         return self._HestonProcess.GetParamNames()
     
-    def SetParams(self,**params):
-        self._HestonProcess.SetParams(**params)
+    def _QLBuild(self):
+        self._QLFactory = ql.HestonModel(self._HestonProcess())
     
-    def __call__(self,**data):
-        return ql.HestonModel(self._HestonProcess(**data))
+    def Update(self,**data):
+        self._HestonProcess.Update(**data)
+        Base.Factory.Update(self,**data)
     
-    def UpdateParams(self,**data):
-        self._HestonProcess.UpdateParams(**data)    
+    def _UpdateParams(self,**data):
+        return 0
+    
+    def _UpdateData(self,**data):
+        return 0
 
 class HestonAnalyticEngineFactory(Base.Factory):
     def __init__(self,r,q,s0,v0,kappa,theta,sigma,rho,relTolerance=0.01,maxEval=1000):
@@ -69,17 +77,19 @@ class HestonAnalyticEngineFactory(Base.Factory):
         names = self._HestonModel.GetParamNames()
         names.extend(Base.Factory.GetParamNames(self))
         return names
-    
-    def SetParams(self,**params):
-        self._HestonModel.SetParams(**params)
-        Base.Factory.SetParams(self,**params)
         
-    def __call__(self,**data):
-        return ql.AnalyticHestonEngine(self._HestonModel(**data),self._params.get('relTolerance'),self._params.get('maxEval'))
+    def _QLBuild(self):
+        self._QLFactory = ql.AnalyticHestonEngine(self._HestonModel(),self._params.get('relTolerance'),self._params.get('maxEval'))
     
-    def UpdateParams(self,**data):
-        self._HestonModel.UpdateParams(**data)
-        Base.Factory.SetParams(self,**data)
+    def Update(self,**data):
+        self._HestonModel.Update(**data)
+        Base.Factory.Update(self,**data)
+    
+    def _UpdateParams(self,**data):
+        Base.Factory._SetParams(self,**data)
+        
+    def _UpdateData(self,**data):
+        return 0
         
 class HestonPathGenerator(Path.GaussianMultiPathGeneratorFactory):
     def __init__(self,r,q,s0,v0,kappa,theta,sigma,rho,timeGrid,brownianBridge=False):

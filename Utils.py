@@ -1,12 +1,14 @@
 import numpy as np
 
 def GeneratePaths(NumPaths, GlobalData, PathGenerator):
+    PathGenerator.Update(**GlobalData)
+    
     nb_assets = 1
     nb_factors = PathGenerator.GetNbFactors()
     timestep = int(PathGenerator.GetParams().get('dimension')/nb_factors)
     arr = np.zeros((NumPaths*nb_assets, timestep+1))
     
-    seq = PathGenerator(**GlobalData)
+    seq = PathGenerator()
     
     for i in range(NumPaths):
         sample_path = seq.next()
@@ -30,8 +32,11 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
                                           HedgingStepDays=1,Margin=0):
     
     #######################################################
-    # ------ GLOBAL DATA (AsOfDate,Calendar,Day,Count): etc
+    # ------ GLOBAL DATA (AsOfDate,Calendar,DayCount,...)
     #######################################################
+    PathGenerator.Update(**GlobalData)
+    PricingEngine.Update(**GlobalData)
+    HedgingEngine.Update(**GlobalData)
     
     ###############################################################
     # ------------- CONFIG SIMU PARAMS ----------------------------
@@ -44,7 +49,7 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
     ################################################################
     # ---- PATH SIMULATION & CONFIG ARRAYS
     ################################################################
-    seq = PathGenerator(**GlobalData)
+    seq = PathGenerator()
     sample_path = seq.next()
     path = sample_path.value()
     path_ref = []
@@ -62,7 +67,8 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
     r = HedgingEngine.GetParams().get('r')
     q = HedgingEngine.GetParams().get('q')
     LocalDate = GlobalData.get('AsOfDate')
-    DayCount =  GlobalData.get('DayCount')
+    DayCount = GlobalData.get('DayCount')
+    data = {}
     Delta = 0
     
     #######################################
@@ -73,19 +79,20 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
         # -------- UPDATE DATA -------------------------------
         # --- TO BE CHANGED WHEN CALIBRATION METHODS READY ---
         #######################################################
-        data = {}
+        data.clear()
+        data['AsOfDate']=LocalDate
         for k in range(nb_factors):
             if k == 0:
                 data[PathGenerator.GetFactorName(k)] = path_ref[m]
             else:
                 data[PathGenerator.GetFactorName(k)] = path[k][m]
-        HedgingEngine.UpdateParams(**data)
-        PricingEngine.UpdateParams(**data)
+        HedgingEngine.Update(**data)
+        PricingEngine.Update(**data)
         
         #######################################################
         # ----- INSTRUMENT AT MARKET PRICE --------------------
         #######################################################
-        Instrument1D.setPricingEngine(PricingEngine(**GlobalData))
+        Instrument1D.setPricingEngine(PricingEngine())
         instrument_value[m] = Instrument1D.NPV()
         
         #######################################################
@@ -96,7 +103,7 @@ def BacktestDeltaHedge1DWithRateDivConstant(GlobalData,PathGenerator,Instrument1
             portfolio_value[m] = instrument_value[m]+Margin
         else:
             portfolio_value[m] = portfolio_value[m-1]+(np.exp((r-q)*dt)-1)*(portfolio_value[m-1]-Delta*path_ref[m-1])+Delta*(path_ref[m]-path_ref[m-1])
-        Instrument1D.setPricingEngine(HedgingEngine(**GlobalData))
+        Instrument1D.setPricingEngine(HedgingEngine())
         Delta = Instrument1D.delta()
         LocalDate = LocalDate + HedgingStepDays
         arr[0, :] = instrument_value
