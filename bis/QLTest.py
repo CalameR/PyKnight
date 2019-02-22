@@ -22,6 +22,8 @@ if __name__=="__main__":
     exercise = ql.EuropeanExercise(MaturityDate)
     EuropeanOption = ql.VanillaOption(payoff, exercise)
     
+    EuropeanOption.update()
+    
     # PRICING ENGINE CONFIG #
     HestonEngine = Heston.HestonAnalyticEngineFactory(r=0.01,q=0.005,s0=100,v0=0.01,kappa=0.5,theta=0.01,sigma=0.05,rho=-0.5,relTolerance=0.01,maxEval=10000)
     
@@ -44,7 +46,7 @@ if __name__=="__main__":
     #plt.legend()
     #plt.show()
     
-    NumPaths = 1000
+    NumPaths = 10
     time, paths = Utils.GeneratePaths(NumPaths,GlobalData,HestonPathGenerator)
     for i in range(NumPaths):
         plt.plot(time, paths[i, :], lw=1, alpha=1)

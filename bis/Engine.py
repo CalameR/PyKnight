@@ -1,10 +1,10 @@
 import Factory as Base
 
-class EngineFactory(Base.Factory):
-    def __init__(self,name,params):
-        Base.Factory.__init__(self,name,params)
-        self._Arguments = 0
-        self._Results = 0
+class Engine(Base.CalibFactory):
+    def __init__(self,name):
+        Base.Factory.__init__(self,name)
+        self._Arguments = None
+        self._Results = None
     
     def calculate(self):
         pass
@@ -19,4 +19,10 @@ class EngineFactory(Base.Factory):
         self._Results.reset()
         
 class Results(object):
-    def __init__(self)
+    def reset(self):
+        pass
+    
+class Arguments(object):
+    def validate(self):
+        pass
+        

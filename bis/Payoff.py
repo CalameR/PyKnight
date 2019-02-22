@@ -1,23 +1,20 @@
+import Factory as Base
 import QuantLib as ql
-import numpy as np
+#import numpy as np
 from datetime import datetime
 
 # FOR ANY FINAL CHILD PAYOFF CLASS IMPLEMENTED IN QL, 
 # THE __init__ CALL MUST CONTAIN self._QLBuild() AT THE END !
 
-class Payoff(object):
+class Payoff(Base.Factory):
     def __init__(self,name):
-        self._name = name + "_" + str(datetime.now())
-        self._QLPayoff = 0
+        Base.Factory.__init__(self,name)
     
-    def GetName(self):
-        return self._name
-    
-    def _QLBuild(self):
-        pass
-    
-    def __call__(self,data):
-        return self._QLPayoff(data)
+    def __call__(self,data=None):
+        if data is not None:
+            return self._QLFactory(data)
+        else:
+            return self._QLFactory
 
 class TypePayoff(Payoff):
     def __init__(self,name,option_type):
@@ -66,6 +63,7 @@ class PlainVanillaPayoff(StrikedTypePayoff):
     
     def _QLBuild(self):
         self._QLPayoff = ql.PlainVanillaPayoff(self._OptionType, self._Strike)
+        self._Timestamp = str(datetime.now())
     
 class DigitalPayoff(StrikedTypePayoff,CashPayoff):
     def __init__(self,strike,option_type,cash):
@@ -75,6 +73,7 @@ class DigitalPayoff(StrikedTypePayoff,CashPayoff):
     
     def _QLBuild(self):
         self._QLPayoff = ql.CashOrNothingPayoff(self._OptionType,self._Strike,self._Cash)
+        self._Timestamp = str(datetime.now())
     
     
     

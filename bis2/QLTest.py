@@ -15,7 +15,6 @@ if __name__=="__main__":
     # INSTRUMENT1D CONFIG #
     MaturityDate = ql.Date(15,10,2021)
     
-    test = MaturityDate - AsOfDate
     strike = 100
     option_type = ql.Option.Call
     payoff = ql.PlainVanillaPayoff(option_type, strike)
@@ -33,8 +32,8 @@ if __name__=="__main__":
     relTolerance=0.01
     maxEval=10000
     r_simple_quote = ql.SimpleQuote(r)
-    r_ts = ql.FlatForward(AsOfDate,ql.QuoteHandle(r_simple_quote),DayCount)
-    rate_curve_handle = ql.YieldTermStructureHandle(r_ts)
+    rate_curve_handle = ql.YieldTermStructureHandle(
+                ql.FlatForward(AsOfDate,ql.QuoteHandle(r_simple_quote),DayCount))
     div_curve_handle = ql.YieldTermStructureHandle(
                 ql.FlatForward(AsOfDate,ql.QuoteHandle(ql.SimpleQuote(q)),DayCount))
     spot_handle = ql.QuoteHandle(ql.SimpleQuote(s0))
@@ -46,6 +45,8 @@ if __name__=="__main__":
     HestonEngine = ql.AnalyticHestonEngine(HestonModel,relTolerance,maxEval)
     EuropeanOption.setPricingEngine(HestonEngine)
     print(EuropeanOption.NPV())
+    
+    print(HestonProcess.factors())
     
     print(payoff(102))
     
@@ -60,9 +61,6 @@ if __name__=="__main__":
     
     print(EuropeanOption.NPV())
     
-    AsOfDate = AsOfDate + 1
-    
-    print(EuropeanOption.NPV())
     
     # PRICING ENGINE CONFIG #
     #HestonEngine = Heston.HestonAnalyticEngineFactory(r=0.01,q=0.005,s0=100,v0=0.01,kappa=0.5,theta=0.01,sigma=0.05,rho=-0.5,relTolerance=0.01,maxEval=10000)
