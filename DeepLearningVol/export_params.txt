@@ -1,0 +1,4 @@
+Calibration computation time = 0.32s
+The optimal set of params is [ 2.58524778  0.31592106  1.48136758 -0.73677433  0.31346273]
+The initial set of params is [ 2.39331901  0.34036567  1.22612328 -0.8891384   0.30476804]
+The standard deviation on the surface is 0.6190361715450251%
